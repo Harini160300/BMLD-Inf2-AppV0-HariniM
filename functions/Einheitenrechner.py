@@ -1,4 +1,4 @@
-def _ensure_number(value: float, name: str) -> float:
+def _ensure_float(value: float, name: str) -> float:
     """Stellt sicher, dass value eine Zahl ist; gibt sie als float zurück."""
     if value is None:
         raise ValueError(f"{name} darf nicht None sein")
@@ -10,7 +10,7 @@ def _ensure_number(value: float, name: str) -> float:
 
 def _ensure_non_negative(value: float, name: str) -> float:
     """Stellt sicher, dass value >= 0 ist."""
-    v = _ensure_number(value, name)
+    v = _ensure_float(value, name)
     if v < 0:
         raise ValueError(f"{name} darf nicht negativ sein")
     return v
@@ -18,7 +18,7 @@ def _ensure_non_negative(value: float, name: str) -> float:
 
 def _ensure_positive(value: float, name: str) -> float:
     """Stellt sicher, dass value > 0 ist."""
-    v = _ensure_number(value, name)
+    v = _ensure_float(value, name)
     if v <= 0:
         raise ValueError(f"{name} muss größer als 0 sein")
     return v
@@ -122,19 +122,19 @@ def micromol_to_mol(umol: float) -> float:
 # --- Temperatur ---
 def celsius_to_fahrenheit(c: float) -> float:
     """Celsius -> Fahrenheit"""
-    v = _ensure_number(c, "Temperatur (°C)")
+    v = _ensure_float(c, "Temperatur (°C)")
     return (v * 9.0 / 5.0) + 32.0
 
 
 def fahrenheit_to_celsius(f: float) -> float:
     """Fahrenheit -> Celsius"""
-    v = _ensure_number(f, "Temperatur (°F)")
+    v = _ensure_float(f, "Temperatur (°F)")
     return (v - 32.0) * 5.0 / 9.0
 
 
 def celsius_to_kelvin(c: float) -> float:
     """Celsius -> Kelvin"""
-    v = _ensure_number(c, "Temperatur (°C)")
+    v = _ensure_float(c, "Temperatur (°C)")
     k = v + 273.15
     if k < 0:
         # physikalisch unmöglich, Abfangen (wird selten eintreten, da v float)
@@ -144,14 +144,14 @@ def celsius_to_kelvin(c: float) -> float:
 
 def kelvin_to_celsius(k: float) -> float:
     """Kelvin -> Celsius"""
-    v = _ensure_number(k, "Temperatur (K)")
+    v = _ensure_float(k, "Temperatur (K)")
     if v < 0:
         raise ValueError("Temperatur (K) darf nicht negativ sein")
     return v - 273.15
 
 
 # --- Utility ---
-def format_number(value: float, sig_digits: int = 6) -> str:
+def format_float(value: float, sig_digits: int = 6) -> str:
     """Einfacher Format-Helper (wissenschaftliche Notation bei Bedarf)."""
     try:
         v = float(value)
@@ -161,7 +161,7 @@ def format_number(value: float, sig_digits: int = 6) -> str:
 # ...existing code...
 
 # ...existing code...
-def kelvin_to_fahrenheit(k: Number) -> float:
+def kelvin_to_fahrenheit(k: float) -> float:
     """Konvertiert Kelvin -> Fahrenheit (K -> °F)."""
     try:
         kv = float(k)
@@ -172,7 +172,7 @@ def kelvin_to_fahrenheit(k: Number) -> float:
     return (kv - 273.15) * 9.0 / 5.0 + 32.0
 
 
-def fahrenheit_to_kelvin(f: Number) -> float:
+def fahrenheit_to_kelvin(f: float) -> float:
     """Konvertiert Fahrenheit -> Kelvin (°F -> K)."""
     try:
         fv = float(f)
