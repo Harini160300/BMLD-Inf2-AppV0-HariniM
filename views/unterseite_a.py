@@ -1,5 +1,6 @@
 import streamlit as st
 from functions import Einheitenrechner as sm
+from pathlib import Path
 
 
 # -------- Umrechnungsfunktion --------
@@ -187,43 +188,45 @@ if st.session_state["last_result"] is not None:
             st.session_state["balloons_shown_for"] = st.session_state["calc_id"]
 
         # Dein Danke-Text (bleibt sichtbar)
-        st.info(" Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners. 😊")
+        st.info(" Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners.")
 
         # Feedback (bleibt sichtbar)
         st.divider()
-        st.subheader("War die App hilfreich?")
+st.subheader("War die App hilfreich?")
 
-        col1, col2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-        with col1:
-            if st.button("👍 Ja, hilfreich", key="fb_up", use_container_width=True):
-                st.session_state["feedback"] = "up"
+with col1:
+    if st.button("👍 Ja hilfreich", key="fb_up"):
+        st.session_state["feedback"] = "up"
 
-        with col2:
-            if st.button("👎 Nein", key="fb_down", use_container_width=True):
-                st.session_state["feedback"] = "down"
+with col2:
+    if st.button("👎 Nein", key="fb_down"):
+        st.session_state["feedback"] = "down"
 
-        #  Reaktion auf Feedback (bleibt sichtbar)
-        if st.session_state["feedback"] == "up":
-            st.success("Aww danke! Wir freuen uns, dass die App dir geholfen hat.")
 
-            # OPTIONAL: dein Elefant/GIF hier (wenn du willst)
-            # st.markdown(
-            #     """
-            #     <div style="text-align:center;">
-            #         <img src="DEIN_GIF_LINK" width="260">
-            #     </div>
-            #     """,
-            #     unsafe_allow_html=True
-            # )
+# Reaktion auf Feedback
+if st.session_state.get("feedback") == "up":
 
-            st.markdown(
-                """
-                <div style="font-size:30px;text-align:center">
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+    st.success("Aww danke! Wir freuen uns, dass die App dir geholfen hat. ")
 
-        elif st.session_state["feedback"] == "down":
-            st.warning("Danke für dein Feedback! Wir verbessern die App weiter 😊. ")
+    st.markdown(
+    """
+    <div style="text-align:center;">
+        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExODg2MDg5bnNwbDhzbGE3eDRienkxN3ZwYzIybm4xdTd1c2U2NjdyeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TCKxvBY0MA3uKzXdeo/giphy.gif" width="260">
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
+elif st.session_state.get("feedback") == "down":
+
+    st.warning("Danke für dein Feedback! Wir verbessern die App weiter.")
+
+    img_path = Path(__file__).parent / "elefant_feedback.png"
+
+    col1, col2, col3 = st.columns([1,2,1])
+
+    with col2:
+        st.image(str(img_path), width=250)
+
+
