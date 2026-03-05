@@ -144,8 +144,32 @@ if submit:
         st.session_state["last_result"] = ("__error__", str(e))
 
 # -------------------- Ergebnis anzeigen --------------------
-if st.session_state["last_result"] is not None:
+if "last_result" not in st.session_state:
+    st.session_state["last_result"] = None
+if "feedback" not in st.session_state:
+    st.session_state["feedback"] = None
 
+if "calc_id" not in st.session_state:
+    st.session_state["calc_id"] = 0
+if "balloons_shown_for" not in st.session_state:
+    st.session_state["balloons_shown_for"] = -1
+
+
+# -------------------- Berechnen: nur speichern --------------------
+if submit:
+    try:
+        result = umrechnen(value, from_unit, to_unit)
+        st.session_state["last_result"] = (float(value), from_unit, to_unit, float(result))
+        st.session_state["feedback"] = None
+        st.session_state["calc_id"] += 1
+    except Exception as e:
+        st.session_state["last_result"] = ("__error__", str(e))
+        st.session_state["feedback"] = None
+        st.session_state["calc_id"] += 1
+
+
+# -------------------- Anzeige: Ergebnis + Danke + Feedback --------------------
+if st.session_state["last_result"] is not None:
     lo = st.session_state["last_result"]
 
     if lo[0] == "__error__":
@@ -157,37 +181,49 @@ if st.session_state["last_result"] is not None:
 
         st.success(f"{v} {src} = {out} {dst}")
 
-    if show_balloons and st.session_state["balloons_shown_for"] != st.session_state["calc_id"]:
-        st.balloons()
-        st.session_state["balloons_shown_for"] = st.session_state["calc_id"]
+        # Ballons nur 1x pro Berechnung
+        if show_balloons and st.session_state["balloons_shown_for"] != st.session_state["calc_id"]:
+            st.balloons()
+            st.session_state["balloons_shown_for"] = st.session_state["calc_id"]
 
-        st.info("Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners.")
+        # Dein Danke-Text (bleibt sichtbar)
+        st.info(" Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners. 😊")
 
+        # Feedback (bleibt sichtbar)
         st.divider()
         st.subheader("War die App hilfreich?")
 
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("👍 Ja hilfreich"):
+            if st.button("👍 Ja, hilfreich", key="fb_up", use_container_width=True):
                 st.session_state["feedback"] = "up"
 
         with col2:
-            if st.button("👎 Nicht hilfreich"):
+            if st.button("👎 Nein", key="fb_down", use_container_width=True):
                 st.session_state["feedback"] = "down"
 
+        #  Reaktion auf Feedback (bleibt sichtbar)
         if st.session_state["feedback"] == "up":
+            st.success("Aww danke! Wir freuen uns, dass die App dir geholfen hat.")
 
-            st.success("Aww danke! Wir freuen uns, dass die App dir gefholfen hat.")
+            # OPTIONAL: dein Elefant/GIF hier (wenn du willst)
+            # st.markdown(
+            #     """
+            #     <div style="text-align:center;">
+            #         <img src="DEIN_GIF_LINK" width="260">
+            #     </div>
+            #     """,
+            #     unsafe_allow_html=True
+            # )
 
             st.markdown(
-            """
-            <div style="text-align: center;">
-                <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWlicjR2NGRteHk3NmFvZGhia20yNTZrNTloZTZvdnozcTY1ZWM1MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TCKxvBY0MA3uKzXdeo/giphy.gif" width="300">
-            </div>
-            """,
-            unsafe_allow_html=True)
+                """
+                <div style="font-size:30px;text-align:center">
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         elif st.session_state["feedback"] == "down":
-
-            st.warning("Danke für dein Feedback! Wir verbessern die App weiter 😊.")
+            st.warning("Danke für dein Feedback! Wir verbessern die App weiter 😊. ")
