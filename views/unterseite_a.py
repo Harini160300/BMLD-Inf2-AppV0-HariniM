@@ -115,26 +115,79 @@ with st.form("convert_form"):
 
     to_unit = st.selectbox("Nach (Einheit)", units, index=1)
 
-    show_balloons = st.checkbox("Ballons anzeigen", value=True)
+    show_balloons = st.checkbox("Ballons anzeigen beim Ergebnis", value=True)
 
     submit = st.form_submit_button("Berechnen")
 
+if "calc_id" not in st.session_state:
+    st.session_state["calc_id"] = 0
 
+if "balloons_shown_for" not in st.session_state:
+    st.session_state["balloons_shown_for"] = -1
+
+# -------------------- Session State --------------------
+if "last_result" not in st.session_state:
+    st.session_state["last_result"] = None
+if "feedback" not in st.session_state:
+    st.session_state["feedback"] = None
+
+# -------------------- Berechnen --------------------
 if submit:
-
     try:
-
         result = umrechnen(value, from_unit, to_unit)
+        st.session_state["last_result"] = (float(value), from_unit, to_unit, float(result))
+        st.session_state["feedback"] = None
 
-        out = format_result(result, to_unit)
-
-        st.success(f"{value} {from_unit} = {out} {to_unit}")
-
-        if show_balloons:
-            st.balloons()
-
-        st.info("🌟 Berechnung abgeschlossen!  \nVielen Dank für die Nutzung unseres Einheitenrechners und einen schönen Tag! 😊")
+        st.session_state["calc_id"] += 1
 
     except Exception as e:
+        st.session_state["last_result"] = ("__error__", str(e))
 
-        st.error(str(e))
+# -------------------- Ergebnis anzeigen --------------------
+if st.session_state["last_result"] is not None:
+
+    lo = st.session_state["last_result"]
+
+    if lo[0] == "__error__":
+        st.error(lo[1])
+
+    else:
+        v, src, dst, res = lo
+        out = format_result(res, dst)
+
+        st.success(f"{v} {src} = {out} {dst}")
+
+    if show_balloons and st.session_state["balloons_shown_for"] != st.session_state["calc_id"]:
+        st.balloons()
+        st.session_state["balloons_shown_for"] = st.session_state["calc_id"]
+
+        st.info("Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners.")
+
+        st.divider()
+        st.subheader("War die App hilfreich?")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("👍 Ja hilfreich"):
+                st.session_state["feedback"] = "up"
+
+        with col2:
+            if st.button("👎 Nicht hilfreich"):
+                st.session_state["feedback"] = "down"
+
+        if st.session_state["feedback"] == "up":
+
+            st.success("Aww danke! Wir freuen uns, dass die App dir gefholfen hat.")
+
+            st.markdown(
+            """
+            <div style="text-align: center;">
+                <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWlicjR2NGRteHk3NmFvZGhia20yNTZrNTloZTZvdnozcTY1ZWM1MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TCKxvBY0MA3uKzXdeo/giphy.gif" width="300">
+            </div>
+            """,
+            unsafe_allow_html=True)
+
+        elif st.session_state["feedback"] == "down":
+
+            st.warning("Danke für dein Feedback! Wir verbessern die App weiter 😊.")
