@@ -1,6 +1,7 @@
 import streamlit as st
 from functions import Einheitenrechner as sm
 from pathlib import Path
+import pandas as pd
 
 
 # -------- Umrechnungsfunktion --------
@@ -116,6 +117,11 @@ if "balloons_shown_for" not in st.session_state:
 # -------- UI --------
 st.title("Einheitenrechner")
 
+if "data_df" not in st.session_state:
+    st.session_state["data_df"] = pd.DataFrame(
+        columns=["Wert", "Von", "Nach", "Ergebnis"]
+    )
+
 units = [
 "L","mL","cL","µL",
 "µg","mg","g","kg","t",
@@ -164,12 +170,27 @@ if reset:
 if submit:
     try:
         result = umrechnen(value, from_unit, to_unit)
+
+        # Ergebnis speichern
         st.session_state["last_result"] = (value, from_unit, to_unit, result)
         st.session_state["feedback"] = None
         st.session_state["calc_id"] += 1
+
+        # --- History hinzufügen ---
+        result_row = {
+            "Wert": value,
+            "Von": from_unit,
+            "Nach": to_unit,
+            "Ergebnis": result
+        }
+
+        st.session_state["data_df"] = pd.concat(
+            [st.session_state["data_df"], pd.DataFrame([result_row])],
+            ignore_index=True
+        )
+
     except Exception as e:
         st.session_state["last_result"] = ("__error__", str(e))
-
 
 # -------- Ergebnis anzeigen --------
 if st.session_state["last_result"] is not None:
@@ -233,3 +254,9 @@ elif st.session_state.get("feedback") == "down":
 
     with col2:
         st.image(str(img_path), width=250)
+
+st.subheader("Berechnungsverlauf")
+
+st.caption("Alle bisherigen Berechnungen werden hier angezeigt.")
+
+st.dataframe(st.session_state["data_df"])
