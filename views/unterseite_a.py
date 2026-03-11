@@ -2,6 +2,7 @@ import streamlit as st
 from functions import Einheitenrechner as sm
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
 
 
 # -------- Umrechnungsfunktion --------
@@ -178,6 +179,8 @@ if submit:
 
         # --- History hinzufügen ---
         result_row = {
+            "Datum": datetime.now().strftime("%d.%m.%Y"),
+            "Zeit": datetime.now().strftime("%H:%M:%S"),
             "Wert": value,
             "Von": from_unit,
             "Nach": to_unit,
