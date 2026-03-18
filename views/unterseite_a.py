@@ -6,6 +6,8 @@ from datetime import datetime
 from utils.data_manager import DataManager
 import pytz
 
+user = st.session_state.get("username", "unknown")
+
 
 # -------- Umrechnungsfunktion --------
 def umrechnen(val: float, src: str, dst: str) -> float:
@@ -217,7 +219,6 @@ with st.form("convert_form"):
     with col2:
         reset = st.form_submit_button("Reset", on_click=reset_form)
 
-
 # -------- Berechnen --------
 if submit:
     try:
@@ -228,7 +229,6 @@ if submit:
         st.session_state["feedback"] = None
         st.session_state["calc_id"] += 1
 
-        # Verlauf ergänzen
         result_row = {
             "timestamp": datetime.now(pytz.timezone("Europe/Zurich")),
             "Wert": value,
@@ -242,12 +242,12 @@ if submit:
             ignore_index=True
         )
 
-        # Persistentes Speichern
+       # Persistentes Speichern
         data_manager = DataManager()
-        data_manager.save_user_data(st.session_state["data_df"], "data.csv")
+        filename = f"{user.replace(' ', '_')}.csv"
+        data_manager.save_user_data(st.session_state["data_df"], filename)
 
     except Exception as e:
-
         st.session_state["last_result"] = ("__error__", str(e))
 
 
