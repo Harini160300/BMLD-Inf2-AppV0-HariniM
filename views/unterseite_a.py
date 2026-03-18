@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 from datetime import datetime
 from utils.data_manager import DataManager  # --- NEW CODE: import data manager ---
+from datetime import datetime
+import pytz
 
 
 
@@ -181,8 +183,7 @@ if submit:
 
         # --- History hinzufügen ---
         result_row = {
-            "Datum": datetime.now().strftime("%d.%m.%Y"),
-            "Zeit": datetime.now().strftime("%H:%M:%S"),
+            "timestamp": datetime.now(pytz.timezone('Europe/Zurich')),  # Current swiss time
             "Wert": value,
             "Von": from_unit,
             "Nach": to_unit,
