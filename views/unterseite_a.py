@@ -3,6 +3,8 @@ from functions import Einheitenrechner as sm
 from pathlib import Path
 import pandas as pd
 from datetime import datetime
+from utils.data_manager import DataManager  # --- NEW CODE: import data manager ---
+
 
 
 # -------- Umrechnungsfunktion --------
@@ -191,6 +193,15 @@ if submit:
             [st.session_state["data_df"], pd.DataFrame([result_row])],
             ignore_index=True
         )
+
+        # --- Daten speichern ---
+        data_manager = DataManager()
+        data_manager.save_user_data(st.session_state["data_df"], "data.csv")
+
+    except Exception as e:
+        st.session_state["last_result"] = ("__error__", str(e))
+# --- END OF CODE UPDATE ---
+
 
     except Exception as e:
         st.session_state["last_result"] = ("__error__", str(e))
