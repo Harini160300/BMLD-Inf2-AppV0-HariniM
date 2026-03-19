@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 from utils.data_manager import DataManager
 import pytz
+import altair as alt
 
 user = st.session_state.get("username", "unknown")
 
@@ -326,7 +327,44 @@ st.dataframe(st.session_state["data_df"])
 
 
 # -------- Grafik --------
+
 st.subheader("Verlauf der Ergebnisse")
 
 if not st.session_state["data_df"].empty:
-    st.line_chart(st.session_state["data_df"]["Ergebnis"])
+
+    chart_df = st.session_state["data_df"].copy()
+
+    chart_df["Berechnung"] = range(1, len(chart_df) + 1)
+
+    def get_group(unit):
+        if unit in ["L", "mL", "cL", "µL"]:
+            return "Volumen"
+        elif unit in ["µg", "mg", "g", "kg", "t"]:
+            return "Masse"
+        elif unit in ["µmol", "mmol", "mol"]:
+            return "Stoffmenge"
+        elif unit in ["°C", "°F", "K"]:
+            return "Temperatur"
+        else:
+            return "Andere"
+
+    chart_df["Gruppe"] = chart_df["Von"].apply(get_group)
+
+    chart = alt.Chart(chart_df).mark_bar().encode(
+        x=alt.X("Berechnung:O", title="Berechnung"),
+        y=alt.Y("Ergebnis:Q", title="Ergebnis"),
+
+        color=alt.Color(
+            "Gruppe:N",
+            title="Einheitsgruppen",
+            scale=alt.Scale(
+                domain=["Volumen", "Masse", "Stoffmenge", "Temperatur"],
+                range=["#4C78A8", "#F58518", "#54A24B", "#E45756"]
+            )
+        ),
+
+        tooltip=["Berechnung", "Ergebnis", "Von", "Nach", "Gruppe"]
+    )
+
+    st.altair_chart(chart, use_container_width=True)
+
