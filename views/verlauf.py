@@ -1,7 +1,7 @@
 import streamlit as st
 import altair as alt
 
-st.title("Berechnungsverlauf")
+st.title("Grafische Darstellung des Berechnungsverlaufs")
 
 data_df = st.session_state["data_df"]
 
