@@ -37,8 +37,12 @@ chart_df["Berechnungsnummer"] = range(1, len(chart_df) + 1)
 # -------- Diagramm --------
 chart = alt.Chart(chart_df).mark_line(point=True).encode(
     x=alt.X(
-        "Berechnungsnummer:Q",
-        title="Berechnungsnummer"
+    "Berechnungsnummer:Q",
+    title="Berechnungsnummer",
+    axis=alt.Axis(
+        tickMinStep=1,
+        format="d"
+    )
     ),
     y=alt.Y(
         "Ergebnis:Q",
