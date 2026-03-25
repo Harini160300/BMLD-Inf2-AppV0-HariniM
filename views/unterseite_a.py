@@ -18,8 +18,12 @@ def reset_form():
     st.session_state["to_unit_input"] = "mL"
     st.session_state["last_result"] = None
     st.session_state["feedback"] = None
+    st.session_state["calc_id"] = 0
+    st.session_state["balloons_shown_for"] = -1
+    st.session_state["data_df"] = pd.DataFrame()
 
 
+# -------- Session State --------
 if "value_input" not in st.session_state:
     st.session_state["value_input"] = 0.0
 
@@ -41,7 +45,13 @@ if "calc_id" not in st.session_state:
 if "balloons_shown_for" not in st.session_state:
     st.session_state["balloons_shown_for"] = -1
 
+if "data_df" not in st.session_state:
+    st.session_state["data_df"] = pd.DataFrame(
+        columns=["Wert", "Von", "Nach", "Ergebnis"]
+    )
 
+
+# -------- UI --------
 st.title("Einheitenrechner")
 
 units = [
@@ -54,17 +64,8 @@ units = [
 with st.form("convert_form"):
     value = st.number_input("Wert", key="value_input", format="%.6g")
 
-    from_unit = st.selectbox(
-        "Von (Einheit)",
-        units,
-        key="from_unit_input"
-    )
-
-    to_unit = st.selectbox(
-        "Nach (Einheit)",
-        units,
-        key="to_unit_input"
-    )
+    from_unit = st.selectbox("Von (Einheit)", units, key="from_unit_input")
+    to_unit = st.selectbox("Nach (Einheit)", units, key="to_unit_input")
 
     show_balloons = st.checkbox("Ballons anzeigen beim Ergebnis", value=True)
 
@@ -74,6 +75,8 @@ with st.form("convert_form"):
     with col2:
         reset = st.form_submit_button("Reset", on_click=reset_form)
 
+
+# -------- Berechnung --------
 if submitted:
     try:
         result = calculate_conversion(value, from_unit, to_unit)
@@ -84,6 +87,7 @@ if submitted:
             result["Nach"],
             result["Ergebnis"]
         )
+
         st.session_state["feedback"] = None
         st.session_state["calc_id"] += 1
 
@@ -98,6 +102,8 @@ if submitted:
     except Exception as e:
         st.session_state["last_result"] = ("__error__", str(e))
 
+
+# -------- Ergebnis --------
 if st.session_state["last_result"] is not None:
     lo = st.session_state["last_result"]
 
@@ -116,6 +122,8 @@ if st.session_state["last_result"] is not None:
         st.info("Berechnung abgeschlossen! Vielen Dank für die Nutzung unseres Einheitenrechners.")
         st.divider()
 
+
+# -------- Feedback --------
 st.subheader("War die App hilfreich?")
 
 col1, col2 = st.columns(2)
@@ -127,6 +135,7 @@ with col1:
 with col2:
     if st.button("👎 Nein"):
         st.session_state["feedback"] = "down"
+
 
 if st.session_state.get("feedback") == "up":
     st.success("Aww danke! Wir freuen uns, dass die App dir geholfen hat.")
@@ -149,6 +158,9 @@ elif st.session_state.get("feedback") == "down":
     with col2:
         st.image(str(img_path), width=250)
 
+
+# -------- Verlauf Tabelle --------
 st.subheader("Berechnungsverlauf")
 st.caption("Alle bisherigen Berechnungen werden hier angezeigt.")
 st.dataframe(st.session_state["data_df"])
+
